@@ -1,3 +1,7 @@
 1.Deposit collateral: ETH /WETH
 2.Borrow another asset: DAI
 3.Repay the DAI
+
+//forking tradeofs
+pros: quick, easy resemble what is on mainnet
+cons: we need an api. some contracts are complex to work with
