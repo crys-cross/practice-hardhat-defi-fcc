@@ -1,7 +1,7 @@
 import { ethers, getNamedAccounts, network } from "hardhat"
 import { networkConfig } from "../helper-hardhat-config"
 
-export const AMOUNT = ethers.utils.parseEther("0.02")
+export const AMOUNT = ethers.utils.parseEther("0.02").toString()
 
 export const getWeth = async () => {
     const { deployer } = await getNamedAccounts()
