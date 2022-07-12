@@ -14,7 +14,6 @@ const aaveBorrow = async () => {
     //lending pool ^
     const lendingPool: ILendingPool = await getLendingPool(deployer)
     console.log(`LendingPool Address ${lendingPool.address}`)
-
     //deposit. Need approve first
     const wethTokenAddress = networkConfig[network.config!.chainId!].wethToken!
     //then approve
@@ -25,13 +24,31 @@ const aaveBorrow = async () => {
     //getting borrowing stats
     let { availableBorrowsETH, totalDebtETH } = await getBorrowUserData(lendingPool, deployer)
     const daiPrice = await getDaiPrice()
-    const amountDaiToBorrow = availableBorrowsETH.div(daiPrice)
+    const amountDaiToBorrow = availableBorrowsETH.div(daiPrice) //Challenge make value only 95%
     console.log(`You can borrow ${amountDaiToBorrow} DAI`)
     const amountDaiToBorrowWei = ethers.utils.parseEther(amountDaiToBorrow.toString())
     //availableBorrowsETH?what conversion rate on DAI is?
     //borrow time!
     //know first how much we have borrowed, have in collateral, we can borrow(getting borrowing stats above)
-    await borrowDai
+    const daiTokenAddress = networkConfig[network.config!.chainId!].daiToken!
+    await borrowDai(daiTokenAddress, lendingPool, amountDaiToBorrowWei.toString(), deployer)
+    await getBorrowUserData(lendingPool, deployer)
+    //repay
+    await repay(amountDaiToBorrowWei.toString(), daiTokenAddress, lendingPool, deployer)
+    await getBorrowUserData(lendingPool, deployer)
+    //CHALLENGE write programitically to pay using uniswap
+}
+
+const repay = async (
+    amount: string,
+    daiAddress: string,
+    lendingPool: ILendingPool,
+    account: Address
+) => {
+    await approveERC20(daiAddress, lendingPool.address, amount, account)
+    const repayTx = await lendingPool.repay(daiAddress, amount, 1, account)
+    await repayTx.wait(1)
+    console.log("Rapaid!")
 }
 
 const borrowDai = async (
